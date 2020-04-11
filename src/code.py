@@ -1,6 +1,7 @@
 """Imports"""
 from adafruit_circuitplayground.express import cpx
 import time
+import gc
 
 """Definitions"""
 RED = (90, 0, 0)
@@ -8,6 +9,7 @@ GREEN = (0, 90, 0)
 BLUE = (0, 0, 90)
 WHITE = (30, 30, 30)
 BLACK = (0, 0, 0)
+YELLOW = (45, 45, 0)
 
 """Classes"""
 class Mode:
@@ -75,7 +77,9 @@ def inactiveCircuit():
     for i in items:
         cpx.pixels[i.neopixel] = BLACK
     return 0
+    
 """Main"""
+print('Started!! {} free bytes'.format(gc.mem_free()))
 mode = Mode.FIXED
 blinkTimer = 0
 activationTimer = 0
@@ -89,20 +93,22 @@ o1 = Item(GREEN, State.OFF, 1)
 items.append(o1)
 o2 = Item(BLUE, State.OFF, 2)
 items.append(o2)
+o3 = Item(YELLOW, State.OFF, 3)
+items.append(o3)
 
 while True:
     blinkTimer = processItems(blinkTimer)
     processNotifications(blinkTimer)
     
-    if cpx.touch_A4:
-        while cpx.touch_A4:
+    if cpx.touch_A5:
+        while cpx.touch_A5:
             pass
         if mode == Mode.FIXED:
             mode = Mode.BLINK
-            print("Modo parpadeo")
+            print("Blink Mode")
         elif mode == Mode.BLINK:
             mode = Mode.FIXED
-            print("Modo fijo")
+            print("Fixed Mode")
             time.sleep(0.1)
             activationTimer = 0
     if cpx.touch_A1:
@@ -123,11 +129,17 @@ while True:
         selectItem(items[2])
         time.sleep(0.1)
         activationTimer = 0
+    if cpx.touch_A4:
+        while cpx.touch_A4:
+            pass
+        selectItem(items[3])
+        time.sleep(0.1)
+        activationTimer = 0
         
     if mode == Mode.FIXED:
         activationTimer = activationTimer + 1
     if activationTimer > blinkFrequence * 10:
         inactiveCircuit()
-        while not (cpx.shake() or cpx.touch_A1 or cpx.touch_A2 or cpx.touch_A3 or cpx.touch_A4):
+        while not (cpx.shake() or cpx.touch_A1 or cpx.touch_A2 or cpx.touch_A3 or cpx.touch_A4 or cpx.touch_A5):
             pass
         activationTimer=0
